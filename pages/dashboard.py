@@ -24,6 +24,16 @@ st.divider()
 # 그룹 필터
 group_filter = st.selectbox("그룹 선택", ["전체", "A", "B"])
 
+# 그룹별 목표 표시
+if group_filter in ["A", "B"]:
+    st.subheader(f"🎯 그룹 {group_filter} 목표")
+    for goal in goals['group_goals'][group_filter]:
+        if goal['link']:
+            st.markdown(f"- [{goal['title']}]({goal['link']})")
+        else:
+            st.markdown(f"- {goal['title']}")
+    st.divider()
+
 # 로딩 표시와 함께 멤버 점수 계산
 with st.spinner('GitHub에서 멤버들의 점수를 계산하는 중...'):
     member_scores = []

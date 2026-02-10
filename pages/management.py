@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 import os
+from datetime import datetime
 from github_scorer import get_file_content, get_weekly_score, calculate_score
 
 def show_goal_management():
@@ -15,24 +16,36 @@ def show_goal_management():
         title = st.text_input("제목")
         link = st.text_input("링크 (선택)")
         if st.form_submit_button("추가"):
-            goals['weekly_goals'].append({"title": title, "link": link})
+            goals['weekly_goals'].append({
+                "title": title, 
+                "link": link,
+                "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
             with open('data/goals.json', 'w', encoding='utf-8') as f:
                 json.dump(goals, f, ensure_ascii=False, indent=2)
             st.success("추가되었습니다!")
             st.rerun()
     
     for i, goal in enumerate(goals['weekly_goals']):
-        col1, col2, col3 = st.columns([3, 3, 1])
-        with col1:
-            st.write(goal['title'])
-        with col2:
-            st.write(goal['link'] if goal['link'] else "-")
-        with col3:
-            if st.button("삭제", key=f"del_w_{i}"):
-                goals['weekly_goals'].pop(i)
-                with open('data/goals.json', 'w', encoding='utf-8') as f:
-                    json.dump(goals, f, ensure_ascii=False, indent=2)
-                st.rerun()
+        with st.expander(f"{goal['title']} ({goal.get('created_at', '날짜 없음')})"):
+            with st.form(f"edit_w_{i}"):
+                new_title = st.text_input("제목", value=goal['title'])
+                new_link = st.text_input("링크", value=goal.get('link', ''))
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.form_submit_button("수정"):
+                        goals['weekly_goals'][i]['title'] = new_title
+                        goals['weekly_goals'][i]['link'] = new_link
+                        with open('data/goals.json', 'w', encoding='utf-8') as f:
+                            json.dump(goals, f, ensure_ascii=False, indent=2)
+                        st.success("수정되었습니다!")
+                        st.rerun()
+                with col2:
+                    if st.form_submit_button("삭제"):
+                        goals['weekly_goals'].pop(i)
+                        with open('data/goals.json', 'w', encoding='utf-8') as f:
+                            json.dump(goals, f, ensure_ascii=False, indent=2)
+                        st.rerun()
     
     st.divider()
     
@@ -43,24 +56,36 @@ def show_goal_management():
             title = st.text_input("제목", key=f"title_{group_key}")
             link = st.text_input("링크 (선택)", key=f"link_{group_key}")
             if st.form_submit_button("추가", key=f"submit_{group_key}"):
-                goals['group_goals'][group_key].append({"title": title, "link": link})
+                goals['group_goals'][group_key].append({
+                    "title": title, 
+                    "link": link,
+                    "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                })
                 with open('data/goals.json', 'w', encoding='utf-8') as f:
                     json.dump(goals, f, ensure_ascii=False, indent=2)
                 st.success("추가되었습니다!")
                 st.rerun()
         
         for i, goal in enumerate(goals['group_goals'][group_key]):
-            col1, col2, col3 = st.columns([3, 3, 1])
-            with col1:
-                st.write(goal['title'])
-            with col2:
-                st.write(goal['link'] if goal['link'] else "-")
-            with col3:
-                if st.button("삭제", key=f"del_{group_key}_{i}"):
-                    goals['group_goals'][group_key].pop(i)
-                    with open('data/goals.json', 'w', encoding='utf-8') as f:
-                        json.dump(goals, f, ensure_ascii=False, indent=2)
-                    st.rerun()
+            with st.expander(f"{goal['title']} ({goal.get('created_at', '날짜 없음')})"):
+                with st.form(f"edit_{group_key}_{i}"):
+                    new_title = st.text_input("제목", value=goal['title'], key=f"et_{group_key}_{i}")
+                    new_link = st.text_input("링크", value=goal.get('link', ''), key=f"el_{group_key}_{i}")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        if st.form_submit_button("수정", key=f"es_{group_key}_{i}"):
+                            goals['group_goals'][group_key][i]['title'] = new_title
+                            goals['group_goals'][group_key][i]['link'] = new_link
+                            with open('data/goals.json', 'w', encoding='utf-8') as f:
+                                json.dump(goals, f, ensure_ascii=False, indent=2)
+                            st.success("수정되었습니다!")
+                            st.rerun()
+                    with col2:
+                        if st.form_submit_button("삭제", key=f"ed_{group_key}_{i}"):
+                            goals['group_goals'][group_key].pop(i)
+                            with open('data/goals.json', 'w', encoding='utf-8') as f:
+                                json.dump(goals, f, ensure_ascii=False, indent=2)
+                            st.rerun()
 
 def show_member_management():
     st.title("👤 멤버 관리")
