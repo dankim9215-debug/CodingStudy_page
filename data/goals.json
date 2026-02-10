@@ -1,0 +1,22 @@
+{
+  "weekly_goals": [
+    {
+      "title": "알고리즘 기초 다지기",
+      "link": "https://github.com/your-org/study"
+    }
+  ],
+  "group_goals": {
+    "A": [
+      {
+        "title": "DP 문제 5개 풀기",
+        "link": ""
+      }
+    ],
+    "B": [
+      {
+        "title": "그리디 알고리즘 학습",
+        "link": ""
+      }
+    ]
+  }
+}
